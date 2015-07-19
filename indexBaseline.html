@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+</head>
+<body>
+<div id = "game"></div>
+<script type = "text/javascript" src = "./lib/crafty.js"></script>
+<script type = "text/javascript" src = "./lib/MouseFace.js"></script>
+<script>
+	//Stick Crafty into the game div
+	Crafty.init(screen.width*.9, screen.height*.9, document.getElementById('game'));
+	Crafty.background('black');
+	//TODO Add loading screen
+	
+	//Create an entity with attributes. 2D, Doc Obj Model, Starting attributes, color and movement speed.
+	//Player Entity
+	var pSpeed = 2;
+	//Player Dimensions
+	var pWidth = 10;
+	var pHeight = 10;
+	//Speedcap
+	if(pSpeed > 10)
+		pSpeed = 10;
+	var player = Crafty.e('2D, DOM, Color, Fourway, Collision, MouseFace')
+	.attr({
+		x: 15, 
+		y: 15,
+		w: 10, 
+		h: 10,
+		curAngle: 0,
+	})
+	.color('green')
+	.fourway(pSpeed)
+	.onHit('wallHorT', function(){
+		this.y -= pSpeed + 1;
+	})
+	.onHit('wallVertL', function(){
+		this.x -= pSpeed + 1;
+	})
+	.onHit('wallHorB', function(){
+		this.y += pSpeed + 1;
+	})
+	.onHit('wallVertR', function(){
+		this.x += pSpeed + 1;
+	})
+	
+	.origin("center")
+	.MouseFace({x:pWidth/2, y:pHeight/2})
+	.bind("MouseMoved", function(e) {
+		this.curAngle = (e.grad) + 90;
+		this.rotation = this.curAngle;
+	})
+	.bind("MouseDown", function(e) {
+		if(e.mouseButton == Crafty.mouseButtons.LEFT){
+			Crafty.e("2D, DOM, Color, Collision")
+			.attr({
+				x: this.x+pWidth/2, y: this.y+pHeight/2,
+				w: 3, h: 3,
+				speed: 7,
+				angle: this._dirAngle + Math.PI
+			})
+			.color('yellow')
+			.bind("EnterFrame", function(frame){
+				this.x += Math.cos(this.angle) * this.speed;
+				this.y += Math.sin(this.angle) * this.speed;
+				
+				if(this.x > Crafty.viewport.width || this.x < 0) {
+					this.destroy();
+				}
+			})
+			.onHit('solid', function(){
+				this.destroy();
+			})
+		}
+		else if(e.mouseButton == Crafty.mouseButtons.RIGHT)
+			Crafty.e("2D, DOM, Color, breaker, Collision")
+			.attr({
+				x: this.x, y: this.y,
+				w: 10, h: 10,
+				speed: 1,
+				angle: this._dirAngle + Math.PI
+			})
+			.color('red')
+			.bind("EnterFrame", function(frame){
+				this.x += Math.cos(this.angle) * this.speed;
+				this.y += Math.sin(this.angle) * this.speed;
+				
+				if(this.x > Crafty.viewport.width || this.x < 0) {
+					this.destroy();
+				}
+			})
+		})
+		
+		var rows = 3;
+		var columns = 3;
+		var total = (rows * columns * 4)
+		var k = 0;
+	
+	function makeMaze(array){
+		var arrCount=1;
+		for(var i = 0; i < rows; i++){
+			for(var j = 0; j < columns; j++){
+				while(arrCount <= 4){
+						if(array[k]==1){
+						//The wall directions indicate which direction you cannot pass through them by.
+						//i.e. WallHorB is horizontal and keeps you from going through the bottom.
+							if(arrCount == 1){
+								Crafty.e("2D, DOM, wallHorB, Color, solid, Collision")
+								.attr({x: 50 * i, y: 50 * j + 2.95, z: 1, w: 50, h:5})
+								.color('white')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+							if(arrCount == 2){
+								Crafty.e("2D, DOM, wallVertL, Color, solid, Collision")
+								.attr({x: 50 * (i+1) - 2.95, y: 50 * j, z: 1, w: 5, h:50})
+								.color('white')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+							if(arrCount == 3){
+								Crafty.e("2D, DOM, wallHorT, Color, solid, Collision")
+								.attr({x: 50 * i, y: 50 * (j+1) - 2.95, z: 1, w: 50, h:5})
+								.color('white')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+							if(arrCount == 4){
+								Crafty.e("2D, DOM, wallVertR, Color, solid, Collision")
+								.attr({x: 50 * i + 2.95, y: 50 * j, z: 1, w: 5, h:50})
+								.color('white')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+						}
+					if(k <= total)	
+						k++;
+					arrCount++;	
+				}
+			arrCount = 1;
+			}
+		}
+	}
+	
+	//Top, Right, Bottom, Left
+	//Forms the maze from top left to bottom left then right one.
+	/*	
+		1 5 9  13
+		2 6 10 14
+		3 7 11 15
+		4 8 12 16
+	*/
+	var array1 = [
+	1,0,0,1,
+	0,1,1,1,
+	1,0,1,1,
+	1,1,0,0,
+	0,1,0,1,
+	0,0,1,0,
+	1,0,0,1,
+	0,1,0,1,
+	0,1,1,0,
+	];
+	
+	
+	makeMaze(array1);
+		
+</script>
+</body>
+</html>

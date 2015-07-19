@@ -1,0 +1,56 @@
+html{
+	background-image: url("background.png");
+}
+
+@-webkit-keyframes party{
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@-moz-keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@-ms-keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@-o-keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+
+h1 {
+	-webkit-animation: party 1s infinite;
+	-moz-animation: party 1s infinite;
+	-o-animation: party 1s infinite;
+	-ms-animation: party 1s infinite;
+	animation: party 1s infinite;
+	
+	margin: 30;
+	padding: 30;
+	font-size: 60px;
+	font-style: italic;
+   }
+
+
+div {
+	-webkit-animation: party 1s infinite;
+	-moz-animation: party 1s infinite;
+	-o-animation: party 1s infinite;
+	-ms-animation: party 1s infinite;
+	animation: party 1s infinite;
+    }

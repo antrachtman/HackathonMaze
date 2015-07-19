@@ -1,0 +1,296 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+html{
+background-color: black;
+}
+.game {
+	position: fixed;
+	-webkit-background-size:cover;
+	-mos-background-size:cover;
+	-o-background-size:cover;
+	background-size:cover; 
+	margin: 0; 
+	padding: 0;
+	right: 0;
+	bottom: 0;
+	z-index: -100;
+	width: 100%;
+	height: 100%;
+	background:black;
+    }
+
+@-webkit-keyframes party{
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@-moz-keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@-ms-keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@-o-keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+@keyframes party {
+	0% {color:red;}
+	50%{color:blue;}
+	100%{color:yellow;}
+}
+
+
+h1 {
+	-webkit-animation: party 1s infinite;
+	-moz-animation: party 1s infinite;
+	-o-animation: party 1s infinite;
+	-ms-animation: party 1s infinite;
+	animation: party 1s infinite;
+	
+	margin: 30;
+	padding: 30;
+	font-size: 60px;
+	font-style: italic;
+   }
+
+
+body {
+	-webkit-animation: party 1s infinite;
+	-moz-animation: party 1s infinite;
+	-o-animation: party 1s infinite;
+	-ms-animation: party 1s infinite;
+	animation: party 1s infinite;
+    }
+</style>
+</head>
+<body>
+DARK SOULSSSSSSSSSSSSSSSSSSSSSSSSSS
+<audio id = 'audio1' autoplay loop>
+<source src = './assets/CD.MP3' type = 'audio/mpeg'>
+<script>
+var audio = document.getElementById('audio1');
+audio.volume = 0.3;
+</script>
+</audio>
+<video autoplay loop poster = "./assets/NC.jpg" class="game">
+<source src="./assets/CD.mp4" type="video/mp4">
+</video>
+<div id = "game"></div>
+<script type = "text/javascript" src = "./lib/crafty.js"></script>
+<script type = "text/javascript" src = "./lib/MouseFace.js"></script>
+<script>
+	alert("You'd better shoot the yellow boxes before they \nLAG YOU INTO OBLIVION. \nRight click to shoot a wall breaking projectile. \nShoot the blocks with left clicks. \nUse WASD and the mouse.");
+	//Stick Crafty into the game div
+	var rows = 10;
+	var columns = 10;
+	var roomX = 3500;
+	var roomY = 3500;
+	Crafty.init(roomX,roomY, document.getElementById('game'));
+	Crafty.viewport.init(screen.width,screen.height, document.getElementById('game'));
+	//Crafty.background('black url(assets/Payday-3.png)no-repeat center center');
+	
+	var randomX = Math.floor(Math.random()*rows);
+	var randomY = Math.floor(Math.random()*columns);
+	//TODO Add loading screen
+	
+	Crafty.sprite("assets/solaire.png", {solaire:[0,0,70,100]});
+	Crafty.sprite("assets/shaco.png", {shaco:[0,0,100,94]});
+	Crafty.sprite("assets/bulletBall.png", {ball:[0,0,50,50]});
+	Crafty.sprite("assets/spiderman.png", {spidey:[0,0,163,267]});
+	//Create an entity with attributes. 2D, Doc Obj Model, Starting attributes, color and movement speed.
+	//Player Entity
+	var pSpeed = 2;
+	//Player Dimensions
+	var pWidth = 90;
+	var pHeight = 121;
+	//Speedcap
+	if(pSpeed > 10)
+		pSpeed = 10;
+	var player = Crafty.e('2D, DOM, solaire, Fourway, Collision, MouseFace')
+	.attr({
+		x: 2500, 
+		y: 2500,
+		w: 90, 
+		h: 121,
+		z: 1,
+		curAngle: 0,
+	})
+	.fourway(pSpeed)
+	.onHit('wallHorT', function(){
+		this.y -= pSpeed + 1;
+	})
+	.onHit('wallVertL', function(){
+		this.x -= pSpeed + 1;
+	})
+	.onHit('wallHorB', function(){
+		this.y += pSpeed + 1;
+	})
+	.onHit('wallVertR', function(){
+		this.x += pSpeed + 1;
+	})
+	
+	.origin("center")
+	.MouseFace({x:pWidth/2, y:pHeight/2})
+	.bind("MouseMoved", function(e) {
+		this.curAngle = (e.grad) + 90;
+		this.rotation = this.curAngle;
+	})
+	.bind("MouseDown", function(e) {
+		if(Math.random() < .5){
+			var i = Math.random * total;
+			array1[i] = 1;
+		}
+		if(e.mouseButton == Crafty.mouseButtons.LEFT){
+			Crafty.e("2D, DOM, ball, bullet, Collision")
+			.attr({
+				x: this.x+pWidth/2, y: this.y+pHeight/2,
+				w: 10, h: 10,
+				speed: 7,
+				angle: this._dirAngle + Math.PI
+			})
+			.bind("EnterFrame", function(frame){
+				this.x += Math.cos(this.angle) * this.speed;
+				this.y += Math.sin(this.angle) * this.speed;
+				
+				if(this.x > roomX || this.x < 0 || this.y > roomY || this.y < 0) {
+					this.destroy();
+				}
+			})
+			.onHit('solid', function(){
+				this.destroy();
+			})
+		}
+		else if(e.mouseButton == Crafty.mouseButtons.RIGHT)
+			Crafty.e("2D, DOM, shaco, breaker, Collision")
+			.attr({
+				x: this.x, y: this.y,
+				w: 80, h: 80,
+				speed: 2,
+				angle: this._dirAngle + Math.PI,
+			})
+			.bind("EnterFrame", function(frame){
+				this.x += Math.cos(this.angle) * this.speed;
+				this.y += Math.sin(this.angle) * this.speed;
+				this.rotation = this.angle;
+				
+				if(this.x > roomX || this.x < 0 || this.y > roomY || this.y < 0) {
+					this.destroy();
+				}/*
+				if(this.speed < 1) {
+					this.destroy();
+				}*/
+			})
+			/*
+			.onHit('solid', function(){
+				this.speed = 0;
+			})*/
+		})
+	
+	var total = (rows * columns * 4)
+	var k = 0;
+		
+	Crafty.viewport.follow(player, 0, 0);
+	
+	function makeMaze(array){
+		var arrCount=1;
+		for(var i = 0; i < rows; i++){
+			for(var j = 0; j < columns; j++){
+				while(arrCount <= 4){
+						if(array[k]==1){
+						//The wall directions indicate which direction you cannot pass through them by.
+						//i.e. WallHorB is horizontal and keeps you from going through the bottom.
+							if(arrCount == 1){
+								Crafty.e("2D, DOM, wallHorB, Color, solid, Collision")
+								.attr({x: 100 * i + 2000, y: 100 * j + 5  + 2000, z: 1, w: 100, h:10})
+								.color('red')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+							if(arrCount == 2){
+								Crafty.e("2D, DOM, wallVertL, Color, solid, Collision")
+								.attr({x: 100 * (i+1) - 5  + 2000, y: 100 * j  + 2000, z: 1, w: 10, h:100})
+								.color('yellow')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+							if(arrCount == 3){
+								Crafty.e("2D, DOM, wallHorT, Color, solid, Collision")
+								.attr({x: 100 * i  + 2000, y: 100 * (j+1) - 5  + 2000, z: 1, w: 100, h:10})
+								.color('purple')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+							if(arrCount == 4){
+								Crafty.e("2D, DOM, wallVertR, Color, solid, Collision")
+								.attr({x: 100 * i + 5  + 2000, y: 100 * j  + 2000, z: 1, w: 10, h:100})
+								.color('green')
+								.onHit('breaker', function(){
+									this.destroy();
+								})
+							}
+						}
+					if(k <= total)	
+						k++;
+					arrCount++;	
+				}
+			arrCount = 1;
+			}
+		}
+	}
+	
+	function populate(enemies){
+		for(var i = 0; i < enemies; i++){
+			randomX = Math.floor(Math.random()*1000 + 2000);
+			randomY = Math.floor(Math.random()*1000 + 2000);
+			Crafty.e("2D, DOM, SpriteAnimation, spidey, enemy, Gravity, Collision")
+			.attr({
+				x: randomX,
+				y: randomY,
+				h: 100,
+				w: 75,
+			})
+			.gravity('wallHorT')
+			.onHit('bullet', function(){
+				this.destroy();
+			})
+			if(this.y > player.y + 300) {
+				this.destroy();
+			}
+		}
+	}
+	
+	//Top, Right, Bottom, Left
+	//Forms the maze from top left to bottom left then right one.
+	/*	
+		1 5 9  13
+		2 6 10 14
+		3 7 11 15
+		4 8 12 16
+	*/
+	var array1 = [];
+	for(var i = 0; i < total; i++){
+			array1.push(1);
+	}
+	
+	var enemies = 30;
+	
+	makeMaze(array1);
+	populate(enemies);	
+</script>
+</body>
+</html>
